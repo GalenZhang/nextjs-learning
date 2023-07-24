@@ -15,4 +15,8 @@ module.exports = {
     },
   },
   plugins: [],
+  // 不要覆盖原有样式，禁止设置初始值
+  corePlugins: {
+    preflight: false
+  }
 }
