@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 
@@ -9,7 +9,10 @@ function AntdContainer({
     children: React.ReactNode
 }) {
     return (
-        <ConfigProvider locale={zhCN}>{children}</ConfigProvider>
+        <ConfigProvider locale={zhCN}>
+            {children}
+        </ConfigProvider>
+
     )
 }
 
