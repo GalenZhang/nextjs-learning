@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Input, Button, Table, Modal, Space, Popconfirm } from 'antd'
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import MyUpload from '../../_components/MyUpload';
 
 type Article = {
   id: string,
   title: string,
-  desc: string
+  desc: string,
+  image: string
 }
 
 function ArticlePage() {
@@ -19,6 +21,7 @@ function ArticlePage() {
   }) // 查询条件
   const [currentId, setCurrentId] = useState('') // 使用一个当前id，表示是新增还是修改
   const [total, setTotal] = useState(0) // 总条数
+  const [imageUrl, setImageUrl] = useState<string>(''); // 上传图片
   const [myForm] = Form.useForm() // 获取Form组件
   useEffect(() => {
     fetch(`/api/admin/article?pageNum=${query.pageNum}&pageSize=${query.pageSize}&title=${query.title}`).then(res => res.json()).then(res => {
@@ -30,6 +33,7 @@ function ArticlePage() {
   useEffect(() => {
     if (!open) {
       setCurrentId('')
+      setImageUrl('')
     }
   }, [open])
 
@@ -76,12 +80,20 @@ function ArticlePage() {
             title: '简介',
             dataIndex: 'desc'
           }, {
+            title: '封面',
+            align: 'center',
+            width: '100px',
+            render(v, r) {
+              return <img src={r.image} style={{ display: 'block', margin: '8px auto', width: '80px', maxHeight: '80px' }} alt={r.title}></img>
+            }
+          }, {
             title: '操作',
             render(v, r) {
               return <Space>
                 <Button size='small' icon={<EditOutlined />} type='primary' onClick={() => {
                   setOpen(true)
                   setCurrentId(r.id)
+                  setImageUrl(r.image)
                   myForm.setFieldsValue(r)
                 }}></Button>
                 <Popconfirm title="是否确认删除？" onConfirm={async () => {
@@ -116,12 +128,12 @@ function ArticlePage() {
             if (currentId) {
               await fetch(`/api/admin/article/${currentId}`, {
                 method: 'PUT',
-                body: JSON.stringify(v)
+                body: JSON.stringify({ ...v, image: imageUrl })
               }).then(res => res.json())
             } else {
               await fetch('/api/admin/article', {
                 method: 'POST',
-                body: JSON.stringify(v)
+                body: JSON.stringify({ ...v, image: imageUrl })
               }).then(res => res.json())
             }
             setOpen(false)
@@ -141,6 +153,9 @@ function ArticlePage() {
           </Form.Item>
           <Form.Item label="简介" name="desc">
             <Input.TextArea placeholder='请输入简介' />
+          </Form.Item>
+          <Form.Item label="封面">
+            <MyUpload imageUrl={imageUrl} setImageUrl={setImageUrl} />
           </Form.Item>
         </Form>
       </Modal>
