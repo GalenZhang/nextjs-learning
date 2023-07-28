@@ -39,9 +39,9 @@ function AntdAdmin({
                             label: '用户信息',
                         },
                         {
-                            key: '3',
+                            key: '/admin/article',
                             icon: <UploadOutlined />,
-                            label: 'nav 3',
+                            label: '文章管理',
                         },
                     ]}
                 />
