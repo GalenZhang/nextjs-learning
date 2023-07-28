@@ -1,18 +1,38 @@
 import { prisma } from '@/db'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+    // pageNum 页码
+    // pageSize 每页条数
+    const pageNum = (req.nextUrl.searchParams.get('pageNum') as any) * 1 || 1
+    const pageSize = (req.nextUrl.searchParams.get('pageSize') as any) * 1 || 10
+    const title = (req.nextUrl.searchParams.get('title') as string) || ''
     const data = await prisma.article.findMany({
-        where: {},
+        where: {
+            title: {
+                contains: title // 模糊查询
+            }
+        },
         orderBy: {
             createdAt: 'desc'
+        },
+        take: pageSize, // 取多少条数据
+        skip: (pageNum - 1) * pageSize // 跳过多少条
+    })
+    const total = await prisma.article.count({
+        where: {
+            title: {
+                contains: title // 模糊查询
+            }
         }
     })
     return NextResponse.json({
         success: true,
         errorMessage: '获取数据成功',
         data: {
-            list: data
+            list: data,
+            pages: Math.ceil(total / pageSize),
+            total
         }
     })
 }

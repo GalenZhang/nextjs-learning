@@ -12,12 +12,18 @@ type Article = {
 function ArticlePage() {
   const [open, setOpen] = useState(false)
   const [list, setList] = useState<Article[]>([])
-  const [query, setQuery] = useState({}) // 查询条件
+  const [query, setQuery] = useState({
+    pageNum: 1,
+    pageSize: 10,
+    title: ''
+  }) // 查询条件
   const [currentId, setCurrentId] = useState('') // 使用一个当前id，表示是新增还是修改
+  const [total, setTotal] = useState(0) // 总条数
   const [myForm] = Form.useForm() // 获取Form组件
   useEffect(() => {
-    fetch('/api/admin/article').then(res => res.json()).then(res => {
+    fetch(`/api/admin/article?pageNum=${query.pageNum}&pageSize=${query.pageSize}&title=${query.title}`).then(res => res.json()).then(res => {
       setList(res.data.list)
+      setTotal(res.data.total)
     })
   }, [query])
 
@@ -29,17 +35,33 @@ function ArticlePage() {
 
   return (
     <Card title="文章管理" extra={<><Button icon={<PlusOutlined />} type='primary' onClick={() => setOpen(true)}></Button></>}>
-      <Form layout='inline'>
-        <Form.Item label="标题">
+      <Form layout='inline' onFinish={(v) => {
+        setQuery({
+          pageNum: 1,
+          pageSize: 10,
+          title: v.title
+        })
+      }}>
+        <Form.Item label="标题" name='title'>
           <Input placeholder='请输入关键词'></Input>
         </Form.Item>
         <Form.Item>
-          <Button icon={<SearchOutlined />} type='primary'></Button>
+          <Button icon={<SearchOutlined />} type='primary' htmlType='submit'></Button>
         </Form.Item>
       </Form>
       <Table style={{ marginTop: '8px' }}
         dataSource={list}
         rowKey='id'
+        pagination={{
+          total,
+          onChange(page) {
+            setQuery({
+              ...query,
+              pageNum: page,
+              pageSize: 10
+            })
+          }
+        }}
         columns={[
           {
             title: '序号',
@@ -66,7 +88,11 @@ function ArticlePage() {
                   await fetch(`/api/admin/article/${r.id}`, {
                     method: 'DELETE',
                   }).then(res => res.json())
-                  setQuery({})
+                  setQuery({
+                    ...query,
+                    pageNum: 1,
+                    pageSize: 10
+                  })
                 }}>
                   <Button size='small' icon={<DeleteOutlined />} type='primary' danger></Button>
                 </Popconfirm>
@@ -99,7 +125,11 @@ function ArticlePage() {
               }).then(res => res.json())
             }
             setOpen(false)
-            setQuery({}) // 重新查询
+            setQuery({
+              ...query,
+              pageNum: 1,
+              pageSize: 10
+            }) // 重新查询
           }}>
           <Form.Item label="标题" name="title" rules={[
             {

@@ -61,10 +61,11 @@ function AntdAdmin({
                 </Header>
                 <Content
                     style={{
-                        margin: '24px 16px',
-                        padding: 24,
+                        margin: '12px',
+                        padding: '8px',
                         minHeight: 280,
                         background: colorBgContainer,
+                        overflow: 'auto'
                     }}
                 >
                     {children}
