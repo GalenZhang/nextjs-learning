@@ -3,7 +3,12 @@ import { useState, useEffect } from 'react'
 import { Card, Form, Input, Button, Table, Modal, Space, Popconfirm } from 'antd'
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import MyUpload from '../../_components/MyUpload';
-import MyEditor from '../../_components/MyEditor';
+import dynamic from 'next/dynamic';
+// 只在客户端中引入富文本编辑器，不在编译的时候做处理
+// import MyEditor from '../../_components/MyEditor';
+const MyEditor = dynamic(() => import('../../_components/MyEditor'), {
+  ssr: false
+})
 
 type Article = {
   id: string,
